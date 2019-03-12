@@ -1,2 +1,1 @@
-# longjump
-Helper command for navigating deeply nested directories.
+A little helper command to navigate deeply nested directory structures.

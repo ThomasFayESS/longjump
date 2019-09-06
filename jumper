@@ -1,37 +1,40 @@
 #!/usr/bin/bash
+
+execute=true
 if [ $# -eq 0 ] || [ $# -gt 2 ]; then
   echo "usage; source jumper.bash <dir> <?offset?>"
   echo "*** dir is the directory to jump to in the file system tree. ***"
   echo "*** offset is the selection of which directory to jump to if multiple occurences are found. ***"
   echo "*** The default offset is n, i.e. the last listed directory ***"
-  exit 1
+  execute=false
 fi
-#get list of matching directories
-find -name $1 > tmpDirs
-#Offset (from head of list) is supplied if directory other then n-th is require"
-if [ -n "$2" ]; then
-  offset=$2
-else
-  offset=0
-fi
-
-#Match user suppleir directory based on offset supplied by user (default is n-th item in directory list)
-echo "Matching directories..."
-cat tmpDirs
-findDir=$1
-if [ $offset -gt 0 ]; then
-  targDir=$(cat tmpDirs | head -$offset)
-else
-  targDir=$(cat tmpDirs | tail -1)
-fi
-
-#Check target directory is valid
-lenIn=${#1}
-lenTarg=${#targDir}
-if (( $lenTarg > $lenIn )); then
-  cd $targDir
-  echo "Changing directory to..."
-  pwd
-else
-  echo "No directory match found"
+if [ "$execute" = true ]; then
+  findDir=$1
+  #get list of matching directories
+  matches=$(find . -name $1 -type d)
+  i=0
+  for el in $matches
+  do 
+    arrMatches[$i]=$el
+  done
+  #Offset (from head of list) is supplied if directory other then n-th is require"
+  if [ -n "$2" ]; then
+    offset=$2
+  else
+    offset=0
+  fi
+  #Match user supplied directory based on offset supplied by user (default is n-th item in directory list)
+  if [ $offset -gt 0 ]; then
+    targDir=${arrMatches[($offset]}
+  else
+    targDir=${arrMatches[0]}
+  fi
+  #Check target directory is valid
+  lenIn=${#1}
+  lenTarg=${#targDir}
+  if (( $lenTarg > $lenIn )); then
+    cd $targDir
+  else
+    echo "No directory match found"
+  fi
 fi
